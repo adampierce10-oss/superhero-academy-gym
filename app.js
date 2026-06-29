@@ -1,6 +1,12 @@
 let gameState = {
+  status: "setup", // setup | playing | finished
   players: [],
-  usedAvatars: []
+  exercisesPool: [],
+  sessionExercises: {},
+  leaderboard: [],
+  settings: {
+    exercisesPerPlayer: 6
+  }
 };
 
 let selectedAvatar = null;
