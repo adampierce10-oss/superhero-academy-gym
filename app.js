@@ -103,7 +103,6 @@ function renderPlayers() {
     grid.appendChild(div);
   });
 }
-
 function resetWizard() {
   step = 1;
   selectedAvatar = null;
