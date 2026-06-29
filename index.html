@@ -10,38 +10,34 @@
 <body>
 
   <!-- LEADERBOARD -->
-  <header id="leaderboard">
-    <h1>🏆 Superhero Academy</h1>
+  <header>
+    <h1>🏆 Superhero Academy Gym Camp</h1>
     <div id="leaderboardList"></div>
   </header>
 
-  <!-- MAIN GAME AREA -->
+  <!-- SETUP + CONTROLS -->
+  <div id="controls">
+    <button id="addHeroBtn">+ ADD HERO</button>
+    <button id="startBtn">START CAMP</button>
+  </div>
+
+  <!-- PLAYER GRID -->
   <main>
-
-    <div id="setupPanel">
-      <button id="addHeroBtn">+ ADD HERO</button>
-    </div>
-
     <div id="playerGrid"></div>
-
   </main>
 
-  <!-- MODAL: ADD HERO WIZARD -->
+  <!-- MODAL -->
   <div id="heroModal" class="hidden">
     <div class="modalContent">
 
       <h2>Create Hero</h2>
 
-      <!-- STEP 1 -->
       <div class="step" id="step1">
-        <label>Name</label>
         <input type="text" id="heroName" placeholder="Enter name"/>
         <button onclick="nextStep(2)">Next</button>
       </div>
 
-      <!-- STEP 2 -->
       <div class="step hidden" id="step2">
-        <label>Select Difficulty</label>
         <select id="heroDifficulty">
           <option value="1">Sidekick (Easy)</option>
           <option value="1.5">Hero (Medium)</option>
@@ -51,14 +47,12 @@
         <button onclick="nextStep(3)">Next</button>
       </div>
 
-      <!-- STEP 3 -->
       <div class="step hidden" id="step3">
-        <label>Select Avatar</label>
         <div id="avatarGrid"></div>
         <button onclick="createHero()">Create Hero</button>
       </div>
 
-      <button class="closeBtn" onclick="closeModal()">X</button>
+      <button onclick="closeModal()">X</button>
 
     </div>
   </div>
@@ -67,4 +61,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-<button onclick="startGame()">START CAMP</button>
