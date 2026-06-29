@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Superhero Academy Gym Camp</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+
+<body>
+
+  <!-- LEADERBOARD -->
+  <header id="leaderboard">
+    <h1>🏆 Superhero Academy</h1>
+    <div id="leaderboardList"></div>
+  </header>
+
+  <!-- MAIN GAME AREA -->
+  <main>
+
+    <div id="setupPanel">
+      <button id="addHeroBtn">+ ADD HERO</button>
+    </div>
+
+    <div id="playerGrid"></div>
+
+  </main>
+
+  <!-- MODAL: ADD HERO WIZARD -->
+  <div id="heroModal" class="hidden">
+    <div class="modalContent">
+
+      <h2>Create Hero</h2>
+
+      <!-- STEP 1 -->
+      <div class="step" id="step1">
+        <label>Name</label>
+        <input type="text" id="heroName" placeholder="Enter name"/>
+        <button onclick="nextStep(2)">Next</button>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step hidden" id="step2">
+        <label>Select Difficulty</label>
+        <select id="heroDifficulty">
+          <option value="1">Sidekick (Easy)</option>
+          <option value="1.5">Hero (Medium)</option>
+          <option value="2">Superhero (Hard)</option>
+          <option value="3">Legend (Extreme)</option>
+        </select>
+        <button onclick="nextStep(3)">Next</button>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step hidden" id="step3">
+        <label>Select Avatar</label>
+        <div id="avatarGrid"></div>
+        <button onclick="createHero()">Create Hero</button>
+      </div>
+
+      <button class="closeBtn" onclick="closeModal()">X</button>
+
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
