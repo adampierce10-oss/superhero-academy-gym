@@ -62,12 +62,22 @@ function createHero() {
   if (!name || !selectedAvatar) return;
 
   const player = {
-    id: Date.now(),
-    name,
-    avatar: selectedAvatar,
-    difficulty,
-    score: 0
-  };
+  id: 1,
+  name: "Emma",
+  avatar: "Lightning Hero",
+  difficulty: 2,
+  multiplier: 2,
+
+  score: 0,
+
+  currentIndex: 0,
+
+  exercises: [],
+
+  startTime: null,
+
+  completed: 0
+}
 
   gameState.players.push(player);
   gameState.usedAvatars.push(selectedAvatar);
