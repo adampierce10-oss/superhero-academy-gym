@@ -1,18 +1,13 @@
 let gameState = {
-  status: "setup", // setup | playing | finished
+  status: "setup",
   players: [],
-  exercisesPool: [],
-  sessionExercises: {},
-  leaderboard: [],
-  settings: {
-    exercisesPerPlayer: 6
-  }
+  leaderboard: []
 };
 
 let selectedAvatar = null;
-let step = 1;
 
 document.getElementById("addHeroBtn").onclick = openModal;
+document.getElementById("startBtn").onclick = startGame;
 
 function openModal() {
   document.getElementById("heroModal").classList.remove("hidden");
@@ -21,13 +16,11 @@ function openModal() {
 
 function closeModal() {
   document.getElementById("heroModal").classList.add("hidden");
-  resetWizard();
 }
 
 function nextStep(n) {
   document.querySelectorAll(".step").forEach(s => s.classList.add("hidden"));
   document.getElementById("step" + n).classList.remove("hidden");
-  step = n;
 }
 
 function renderAvatars() {
@@ -37,12 +30,6 @@ function renderAvatars() {
   avatars.forEach(a => {
     const div = document.createElement("div");
     div.className = "avatar";
-
-    if (gameState.usedAvatars.includes(a)) {
-      div.style.opacity = "0.3";
-      div.style.pointerEvents = "none";
-    }
-
     div.innerText = a;
 
     div.onclick = () => {
@@ -61,29 +48,78 @@ function createHero() {
 
   if (!name || !selectedAvatar) return;
 
-const player = {
-  id: 1,
-  name: "Emma",
-  avatar: "Lightning Hero",
-  difficulty: 2,
-  multiplier: 2,
-
-  score: 0,
-
-  currentIndex: 0,
-
-  exercises: [],
-
-  startTime: null,
-
-  completed: 0
-}
+  const player = {
+    id: Date.now(),
+    name,
+    avatar: selectedAvatar,
+    difficulty: Number(difficulty),
+    multiplier: Number(difficulty),
+    score: 0,
+    currentIndex: 0,
+    exercises: [],
+    startTime: null,
+    completed: 0
+  };
 
   gameState.players.push(player);
-  gameState.usedAvatars.push(selectedAvatar);
 
   renderPlayers();
   closeModal();
+}
+
+function startGame() {
+  if (gameState.players.length === 0) return;
+
+  gameState.status = "playing";
+
+  gameState.players.forEach(p => {
+    p.exercises = assignExercises();
+    p.currentIndex = 0;
+    p.completed = 0;
+    p.score = 0;
+    startExercise(p);
+  });
+
+  renderPlayers();
+  updateLeaderboard();
+}
+
+function assignExercises() {
+  let pool = [...exercisePool];
+  let selected = [];
+
+  for (let i = 0; i < 6; i++) {
+    const index = Math.floor(Math.random() * pool.length);
+    selected.push(pool[index]);
+    pool.splice(index, 1);
+  }
+
+  return selected;
+}
+
+function startExercise(player) {
+  player.startTime = Date.now();
+}
+
+function completeExercise(id) {
+  const player = gameState.players.find(p => p.id === id);
+  const ex = player.exercises[player.currentIndex];
+
+  const time = (Date.now() - player.startTime) / 1000;
+
+  let speed = ex.benchmark / time;
+  speed = Math.max(0.25, Math.min(1.5, speed));
+
+  const score = Math.round(ex.basePoints * player.multiplier * speed);
+
+  player.score += score;
+  player.completed++;
+  player.currentIndex++;
+
+  startExercise(player);
+
+  updateLeaderboard();
+  renderPlayers();
 }
 
 function renderPlayers() {
@@ -91,132 +127,42 @@ function renderPlayers() {
   grid.innerHTML = "";
 
   gameState.players.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "playerCard";
 
-    div.innerHTML = `
-      <h3>${p.name}</h3>
-      <p>${p.avatar}</p>
-      <p>Score: ${p.score}</p>
-    `;
-
-    grid.appendChild(div);
-  });
-}
-function resetWizard() {
-  step = 1;
-  selectedAvatar = null;
-  document.getElementById("heroName").value = "";
-  document.querySelectorAll(".step").forEach(s => s.classList.add("hidden"));
-  document.getElementById("step1").classList.remove("hidden");
-}
-const exercisePool = [
-  { id: 1, name: "Push-Ups", type: "reps", target: 20, benchmark: 25, basePoints: 100 },
-  { id: 2, name: "Squats", type: "reps", target: 25, benchmark: 30, basePoints: 100 },
-  { id: 3, name: "Plank", type: "hold", target: 30, benchmark: 35, basePoints: 120 },
-  { id: 4, name: "Bear Crawl", type: "distance", target: 20, benchmark: 25, basePoints: 140 },
-  { id: 5, name: "Lunges", type: "reps", target: 15, benchmark: 20, basePoints: 110 },
-  { id: 6, name: "Wall Sit", type: "hold", target: 40, benchmark: 45, basePoints: 130 }
-];
-function startGame() {
-  if (gameState.players.length === 0) return;
-
-  gameState.status = "playing";
-
-  gameState.players.forEach(player => {
-    player.exercises = assignExercises();
-    player.currentIndex = 0;
-    player.score = 0;
-    player.completed = 0;
-  });
-
-  function renderPlayers() {
-  const grid = document.getElementById("playerGrid");
-  grid.innerHTML = "";
-
-  gameState.players.forEach(player => {
-
-    const ex = player.exercises[player.currentIndex];
-
-    const elapsed = player.startTime
-      ? ((Date.now() - player.startTime) / 1000).toFixed(2)
-      : "0.00";
+    const ex = p.exercises[p.currentIndex];
 
     const card = document.createElement("div");
     card.className = "playerCard";
 
     card.innerHTML = `
-      <h2>${player.name}</h2>
-      <p>${player.avatar}</p>
+      <h3>${p.name}</h3>
+      <p>${p.avatar}</p>
 
-      <h3>${ex ? ex.name : "DONE"}</h3>
-      <h1>${ex ? ex.target : "🏁"}</h1>
+      <h2>${ex ? ex.target : "DONE"}</h2>
+      <h3>${ex ? ex.name : "FINISHED"}</h3>
 
-      <p>${elapsed}s</p>
+      <p>${((Date.now() - (p.startTime || Date.now())) / 1000).toFixed(1)}s</p>
 
-      <button onclick="completeExercise(${player.id})">
+      <button onclick="completeExercise(${p.id})">
         I DID IT!
       </button>
 
-      <p>${player.completed}/6 completed</p>
-      <p>Score: ${player.score}</p>
+      <p>${p.completed}/6</p>
+      <p>Score: ${p.score}</p>
     `;
 
     grid.appendChild(card);
   });
 }
-  function completeExercise(playerId) {
-  const player = gameState.players.find(p => p.id === playerId);
-  const ex = player.exercises[player.currentIndex];
 
-  const timeTaken = (Date.now() - player.startTime) / 1000;
-
-  let score = calculateScore(player, ex, timeTaken);
-
-  player.score += score;
-  player.completed++;
-  player.currentIndex++;
-
-  player.startTime = Date.now();
-
-  updateLeaderboard();
-  renderPlayers();
-
-  if (player.completed === 6) {
-    checkGameEnd();
-  }
-}
-  function calculateScore(player, ex, time) {
-
-  const difficultyMultiplier = player.multiplier;
-
-  let speedMultiplier = ex.benchmark / time;
-
-  speedMultiplier = Math.max(0.25, Math.min(1.5, speedMultiplier));
-
-  let score = ex.basePoints * difficultyMultiplier * speedMultiplier;
-
-  return Math.round(score);
-}
-  function updateLeaderboard() {
-  gameState.leaderboard = [...gameState.players]
-    .sort((a, b) => b.score - a.score);
-
+function updateLeaderboard() {
   const board = document.getElementById("leaderboardList");
   board.innerHTML = "";
 
-  gameState.leaderboard.forEach(p => {
-    const div = document.createElement("div");
-    div.innerHTML = `${p.name} — ${p.score}`;
-    board.appendChild(div);
-  });
-}
-  function checkGameEnd() {
-  const allDone = gameState.players.every(p => p.completed === 6);
-
-  if (!allDone) return;
-
-  gameState.status = "finished";
-
-  alert("🏆 GAME COMPLETE!");
+  gameState.players
+    .sort((a,b) => b.score - a.score)
+    .forEach(p => {
+      const div = document.createElement("div");
+      div.innerText = `${p.name} — ${p.score}`;
+      board.appendChild(div);
+    });
 }
