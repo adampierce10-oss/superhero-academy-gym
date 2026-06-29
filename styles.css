@@ -1,0 +1,95 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b1020;
+  color: white;
+}
+
+/* LEADERBOARD */
+header {
+  padding: 10px;
+  background: #111a33;
+  border-bottom: 2px solid #2f5fff;
+}
+
+#leaderboardList {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* MAIN LAYOUT */
+main {
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* PLAYER GRID */
+#playerGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+/* PLAYER CARD */
+.playerCard {
+  background: #1b2447;
+  border-radius: 12px;
+  padding: 10px;
+  border: 3px solid transparent;
+}
+
+/* ADD HERO BUTTON */
+#addHeroBtn {
+  margin: 10px;
+  padding: 15px;
+  font-size: 18px;
+  background: #2f5fff;
+  border: none;
+  color: white;
+  border-radius: 10px;
+}
+
+/* MODAL */
+#heroModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+}
+
+.modalContent {
+  background: #1b2447;
+  margin: 50px auto;
+  padding: 20px;
+  width: 80%;
+  border-radius: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* AVATARS */
+#avatarGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.avatar {
+  padding: 10px;
+  background: #2a3566;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.avatar.selected {
+  border: 2px solid #2f5fff;
+}
