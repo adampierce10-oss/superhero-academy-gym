@@ -61,7 +61,7 @@ function createHero() {
 
   if (!name || !selectedAvatar) return;
 
-  const player = {
+const player = {
   id: 1,
   name: "Emma",
   avatar: "Lightning Hero",
