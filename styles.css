@@ -1,65 +1,50 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #0b1020;
   color: white;
 }
 
-/* LEADERBOARD */
 header {
   padding: 10px;
   background: #111a33;
-  border-bottom: 2px solid #2f5fff;
 }
 
-#leaderboardList {
+#controls {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* MAIN LAYOUT */
-main {
-  height: calc(100vh - 100px);
-  display: flex;
-  flex-direction: column;
-}
-
-/* PLAYER GRID */
-#playerGrid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
   padding: 10px;
 }
 
-/* PLAYER CARD */
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2f5fff;
+  color: white;
+  font-size: 16px;
+}
+
+main {
+  height: calc(100vh - 150px);
+}
+
+#playerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
 .playerCard {
   background: #1b2447;
-  border-radius: 12px;
   padding: 10px;
-  border: 3px solid transparent;
+  border-radius: 12px;
 }
 
-/* ADD HERO BUTTON */
-#addHeroBtn {
-  margin: 10px;
-  padding: 15px;
-  font-size: 18px;
-  background: #2f5fff;
-  border: none;
-  color: white;
-  border-radius: 10px;
-}
-
-/* MODAL */
 #heroModal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0,0,0,0.8);
 }
 
@@ -68,14 +53,10 @@ main {
   margin: 50px auto;
   padding: 20px;
   width: 80%;
-  border-radius: 12px;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
-/* AVATARS */
 #avatarGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -83,10 +64,9 @@ main {
 }
 
 .avatar {
-  padding: 10px;
   background: #2a3566;
-  border-radius: 10px;
-  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
