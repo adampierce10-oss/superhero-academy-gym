@@ -1,62 +1,32 @@
 /*
-v1.0.0-alpha.5
-GAME FEEL + POLISH LAYER
+v1.0.0-alpha.6
+FINAL CORE ENGINE
+TIME + PERFORMANCE SCORING SYSTEM
 */
 
 const AppState = {
   screen: "home",
   players: [],
   selectedAvatar: null,
-  cooldown: {}
+  exerciseStart: {},
+  sessionHistory: []
 };
 
 /* ---------------- SCREEN ---------------- */
 
 function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => {
-    s.classList.remove("active");
-  });
-
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById("screen-" + id);
   if (el) el.classList.add("active");
 
   AppState.screen = id;
-
-  if (id === "rosterReview") renderRoster();
 }
 
-/* ---------------- AVATARS ---------------- */
-
-function renderAvatars() {
-  const grid = document.getElementById("avatarGrid");
-  if (!grid) return;
-
-  const taken = AppState.players.map(p => p.avatar);
-
-  grid.innerHTML = AVATARS.map(a => `
-    <div class="avatar ${taken.includes(a.icon) ? "selected" : ""}"
-         onclick="selectAvatar('${a.icon}')">
-      ${a.icon}
-    </div>
-  `).join("");
-}
-
-function selectAvatar(icon) {
-  if (AppState.players.find(p => p.avatar === icon)) return;
-
-  AppState.selectedAvatar = icon;
-}
-
-/* ---------------- PLAYERS ---------------- */
+/* ---------------- PLAYER ---------------- */
 
 function addPlayer() {
   const name = prompt("Hero name:");
-  if (!name) return;
-
-  if (!AppState.selectedAvatar) {
-    alert("Select an avatar first!");
-    return;
-  }
+  if (!name || !AppState.selectedAvatar) return;
 
   AppState.players.push({
     id: Date.now(),
@@ -64,41 +34,18 @@ function addPlayer() {
     avatar: AppState.selectedAvatar,
     score: 0,
     currentExercise: 0,
-    exercises: []
+    exercises: [],
+    finished: false
   });
 
   AppState.selectedAvatar = null;
-
   renderPlayers();
   renderAvatars();
 }
 
-function renderPlayers() {
-  const el = document.getElementById("playerList");
-  if (!el) return;
-
-  el.innerHTML = AppState.players.map(p => `
-    <div style="font-size:20px;margin:6px;">
-      ${p.avatar} ${p.name}
-    </div>
-  `).join("");
-}
-
-/* ---------------- ROSTER ---------------- */
-
-function renderRoster() {
-  const el = document.getElementById("rosterList");
-
-  el.innerHTML = AppState.players.map(p => `
-    <div style="font-size:22px;margin:8px;">
-      ${p.avatar} ${p.name}
-    </div>
-  `).join("");
-}
-
 /* ---------------- EXERCISES ---------------- */
 
-function assignExercises(player) {
+function assignExercises(p) {
   const pool = [...EXERCISES];
   const chosen = [];
 
@@ -106,13 +53,78 @@ function assignExercises(player) {
     chosen.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
   }
 
-  player.exercises = chosen;
-  player.currentExercise = 0;
+  p.exercises = chosen;
+  p.currentExercise = 0;
 }
 
-/* ---------------- GAME START ---------------- */
+/* ---------------- TIMER START ---------------- */
+
+function startExerciseTimer(playerId) {
+  AppState.exerciseStart[playerId] = Date.now();
+}
+
+/* ---------------- SCORING ENGINE ---------------- */
+
+function calculateScore(ex, elapsed) {
+
+  const mult = CONFIG.difficultyLevels[ex.difficulty].multiplier;
+
+  let score = ex.basePoints * mult;
+
+  // REPS
+  if (ex.type === "reps") {
+    const bonus = Math.max(0, CONFIG.scoring.speedBonusCap - elapsed * 2);
+    score += bonus;
+  }
+
+  // HOLD
+  if (ex.type === "hold") {
+    if (elapsed <= CONFIG.scoring.holdBufferSeconds) {
+      score += 50;
+    } else {
+      score -= (elapsed - CONFIG.scoring.holdBufferSeconds) * CONFIG.scoring.holdDecayPerSecond;
+    }
+  }
+
+  // DISTANCE
+  if (ex.type === "distance") {
+    const bonus = Math.max(0, CONFIG.scoring.speedBonusCap - elapsed * 1.5);
+    score += bonus;
+  }
+
+  return Math.max(10, Math.floor(score));
+}
+
+/* ---------------- COMPLETE ---------------- */
+
+function completeExercise(playerId, e) {
+
+  const p = AppState.players.find(x => x.id === playerId);
+  const ex = p.exercises[p.currentExercise];
+
+  if (!AppState.exerciseStart[playerId]) {
+    startExerciseTimer(playerId);
+  }
+
+  const elapsed = (Date.now() - AppState.exerciseStart[playerId]) / 1000;
+
+  const gained = calculateScore(ex, elapsed);
+
+  p.score += gained;
+  p.currentExercise++;
+
+  AppState.exerciseStart[playerId] = Date.now();
+
+  renderGame();
+  renderLeaderboard();
+
+  checkEnd();
+}
+
+/* ---------------- GAME FLOW ---------------- */
 
 function startMission() {
+
   AppState.players.forEach(assignExercises);
 
   showScreen("countdown");
@@ -136,84 +148,37 @@ function beginGame() {
   renderLeaderboard();
 }
 
-/* ---------------- GAME RENDER ---------------- */
+/* ---------------- RENDER ---------------- */
 
 function renderGame() {
   const area = document.getElementById("gameArea");
   area.innerHTML = "";
 
   AppState.players.forEach(p => {
+
     const ex = p.exercises[p.currentExercise];
 
     const card = document.createElement("div");
     card.className = "playerCard";
 
     if (!ex) {
-      card.innerHTML = `<h3>${p.avatar} ${p.name}</h3><p>DONE 🏁</p>`;
+      card.innerHTML = `<h3>${p.avatar} ${p.name}</h3><p>COMPLETE 🏁</p>`;
       area.appendChild(card);
       return;
     }
+
+    startExerciseTimer(p.id);
 
     card.innerHTML = `
       <h3>${p.avatar} ${p.name}</h3>
       <div>${ex.icon} ${ex.name}</div>
       <div>Target: ${ex.target}</div>
+      <div>Exercise ${p.currentExercise + 1}/6</div>
       <button onclick="completeExercise(${p.id}, event)">COMPLETE</button>
     `;
 
     area.appendChild(card);
   });
-}
-
-/* ---------------- SCORING ---------------- */
-
-function score(ex, time) {
-  let base = ex.basePoints || 100;
-
-  if (ex.type === "reps") base += Math.max(0, 50 - time);
-  if (ex.type === "distance") base += Math.max(0, 40 - time);
-  if (ex.type === "hold") base += time < 10 ? 50 : -time;
-
-  return Math.max(10, Math.floor(base));
-}
-
-/* ---------------- COMPLETE ---------------- */
-
-function completeExercise(id, e) {
-  if (AppState.cooldown[id]) return;
-
-  AppState.cooldown[id] = true;
-  setTimeout(() => AppState.cooldown[id] = false, 600);
-
-  const p = AppState.players.find(x => x.id === id);
-  const ex = p.exercises[p.currentExercise];
-
-  const time = Math.random() * 20;
-
-  const gained = score(ex, time);
-
-  p.score += gained;
-  p.currentExercise++;
-
-  showPopup(e, "+" + gained);
-
-  renderGame();
-  renderLeaderboard();
-  checkEnd();
-}
-
-/* ---------------- POPUP ---------------- */
-
-function showPopup(e, text) {
-  const d = document.createElement("div");
-  d.className = "scorePopup";
-  d.innerText = text;
-  d.style.left = e.pageX + "px";
-  d.style.top = e.pageY + "px";
-
-  document.body.appendChild(d);
-
-  setTimeout(() => d.remove(), 800);
 }
 
 /* ---------------- LEADERBOARD ---------------- */
@@ -224,7 +189,7 @@ function renderLeaderboard() {
   board.innerHTML = [...AppState.players]
     .sort((a,b) => b.score - a.score)
     .map(p => `
-      <div class="playerBar" style="border-color:#0E78FF">
+      <div style="margin:6px;padding:6px;border-left:6px solid #0E78FF;">
         ${p.avatar} ${p.name} — ${p.score}
       </div>
     `).join("");
@@ -234,6 +199,15 @@ function renderLeaderboard() {
 
 function checkEnd() {
   if (AppState.players.every(p => p.currentExercise >= CONFIG.exercisesPerPlayer)) {
+
+    AppState.sessionHistory.push({
+      date: Date.now(),
+      results: AppState.players.map(p => ({
+        name: p.name,
+        score: p.score
+      }))
+    });
+
     showScreen("results");
 
     document.getElementById("results").innerHTML =
@@ -248,14 +222,9 @@ function checkEnd() {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  document.getElementById("startGameBtn").onclick = () => {
-    renderAvatars();
-    showScreen("playerSetup");
-  };
+  document.getElementById("startGameBtn").onclick = () => showScreen("playerSetup");
 
   document.getElementById("addPlayerBtn").onclick = addPlayer;
-
-  document.getElementById("goRosterBtn").onclick = () => showScreen("rosterReview");
 
   document.getElementById("startCampBtn").onclick = startMission;
 
