@@ -1,90 +1,128 @@
 /*
-Superhero Academy Challenge v1.0.0-alpha.4
-SCORING ENGINE + LIVE LEADERBOARD
+v1.0.0-alpha.5
+GAME FEEL + POLISH LAYER
 */
 
 const AppState = {
   screen: "home",
   players: [],
-  gameStarted: false,
-  exerciseStartTime: {}
+  selectedAvatar: null,
+  cooldown: {}
 };
 
 /* ---------------- SCREEN ---------------- */
 
 function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  const screen = document.getElementById("screen-" + id);
-  if (screen) screen.classList.add("active");
+  document.querySelectorAll(".screen").forEach(s => {
+    s.classList.remove("active");
+  });
+
+  const el = document.getElementById("screen-" + id);
+  if (el) el.classList.add("active");
+
+  AppState.screen = id;
+
+  if (id === "rosterReview") renderRoster();
+}
+
+/* ---------------- AVATARS ---------------- */
+
+function renderAvatars() {
+  const grid = document.getElementById("avatarGrid");
+  if (!grid) return;
+
+  const taken = AppState.players.map(p => p.avatar);
+
+  grid.innerHTML = AVATARS.map(a => `
+    <div class="avatar ${taken.includes(a.icon) ? "selected" : ""}"
+         onclick="selectAvatar('${a.icon}')">
+      ${a.icon}
+    </div>
+  `).join("");
+}
+
+function selectAvatar(icon) {
+  if (AppState.players.find(p => p.avatar === icon)) return;
+
+  AppState.selectedAvatar = icon;
 }
 
 /* ---------------- PLAYERS ---------------- */
 
 function addPlayer() {
-  const name = prompt("Enter hero name:");
+  const name = prompt("Hero name:");
   if (!name) return;
+
+  if (!AppState.selectedAvatar) {
+    alert("Select an avatar first!");
+    return;
+  }
 
   AppState.players.push({
     id: Date.now(),
     name,
+    avatar: AppState.selectedAvatar,
     score: 0,
     currentExercise: 0,
-    exercises: [],
-    finished: false,
-    color: CONFIG.colors[AppState.players.length % CONFIG.colors.length]
+    exercises: []
   });
 
+  AppState.selectedAvatar = null;
+
   renderPlayers();
+  renderAvatars();
 }
 
 function renderPlayers() {
   const el = document.getElementById("playerList");
   if (!el) return;
 
-  el.innerHTML = AppState.players.length
-    ? AppState.players.map(p =>
-        `<div style="font-size:20px;margin:6px;color:${p.color}">
-          🦸 ${p.name}
-        </div>`
-      ).join("")
-    : "<p>No heroes yet</p>";
+  el.innerHTML = AppState.players.map(p => `
+    <div style="font-size:20px;margin:6px;">
+      ${p.avatar} ${p.name}
+    </div>
+  `).join("");
+}
+
+/* ---------------- ROSTER ---------------- */
+
+function renderRoster() {
+  const el = document.getElementById("rosterList");
+
+  el.innerHTML = AppState.players.map(p => `
+    <div style="font-size:22px;margin:8px;">
+      ${p.avatar} ${p.name}
+    </div>
+  `).join("");
 }
 
 /* ---------------- EXERCISES ---------------- */
 
-function generateExercises(player) {
+function assignExercises(player) {
   const pool = [...EXERCISES];
-  const selected = [];
+  const chosen = [];
 
   for (let i = 0; i < CONFIG.exercisesPerPlayer; i++) {
-    const idx = Math.floor(Math.random() * pool.length);
-    selected.push(pool.splice(idx, 1)[0]);
+    chosen.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
   }
 
-  player.exercises = selected;
+  player.exercises = chosen;
   player.currentExercise = 0;
 }
 
 /* ---------------- GAME START ---------------- */
 
-function startGameFlow() {
-  if (!AppState.players.length) {
-    alert("Add heroes first!");
-    return;
-  }
-
-  AppState.players.forEach(generateExercises);
+function startMission() {
+  AppState.players.forEach(assignExercises);
 
   showScreen("countdown");
 
-  let count = CONFIG.timers.countdown;
+  let c = CONFIG.timers.countdown;
 
-  const interval = setInterval(() => {
-    document.getElementById("countdownText").innerText = count;
-
-    count--;
-    if (count < 0) {
-      clearInterval(interval);
+  const i = setInterval(() => {
+    document.getElementById("countdownText").innerText = c--;
+    if (c < 0) {
+      clearInterval(i);
       beginGame();
     }
   }, 1000);
@@ -93,14 +131,12 @@ function startGameFlow() {
 /* ---------------- GAME ---------------- */
 
 function beginGame() {
-  AppState.gameStarted = true;
   showScreen("gameplay");
-
   renderGame();
   renderLeaderboard();
 }
 
-/* ---------------- RENDER GAME ---------------- */
+/* ---------------- GAME RENDER ---------------- */
 
 function renderGame() {
   const area = document.getElementById("gameArea");
@@ -111,86 +147,73 @@ function renderGame() {
 
     const card = document.createElement("div");
     card.className = "playerCard";
-    card.style.border = `3px solid ${p.color}`;
 
     if (!ex) {
-      card.innerHTML = `<h3>${p.name}</h3><p>COMPLETE 🏁</p>`;
+      card.innerHTML = `<h3>${p.avatar} ${p.name}</h3><p>DONE 🏁</p>`;
       area.appendChild(card);
       return;
     }
 
-    // start timer when rendering exercise
-    if (!AppState.exerciseStartTime[p.id]) {
-      AppState.exerciseStartTime[p.id] = Date.now();
-    }
-
     card.innerHTML = `
-      <h3>${p.name}</h3>
-      <div style="font-size:22px">${ex.icon} ${ex.name}</div>
+      <h3>${p.avatar} ${p.name}</h3>
+      <div>${ex.icon} ${ex.name}</div>
       <div>Target: ${ex.target}</div>
-      <div>Exercise ${p.currentExercise + 1}/6</div>
-      <button onclick="completeExercise(${p.id})">COMPLETE</button>
+      <button onclick="completeExercise(${p.id}, event)">COMPLETE</button>
     `;
 
     area.appendChild(card);
   });
 }
 
-/* ---------------- SCORING ENGINE ---------------- */
+/* ---------------- SCORING ---------------- */
 
-function calculateScore(player, exercise) {
-  const multiplier = CONFIG.difficultyLevels[exercise.difficulty].multiplier;
-  const base = exercise.basePoints;
+function score(ex, time) {
+  let base = ex.basePoints || 100;
 
-  const start = AppState.exerciseStartTime[player.id];
-  const elapsed = (Date.now() - start) / 1000;
+  if (ex.type === "reps") base += Math.max(0, 50 - time);
+  if (ex.type === "distance") base += Math.max(0, 40 - time);
+  if (ex.type === "hold") base += time < 10 ? 50 : -time;
 
-  let score = base * multiplier;
-
-  // Reps = faster is better
-  if (exercise.type === "reps") {
-    score += Math.max(0, 50 - elapsed);
-  }
-
-  // Hold = buffer then decay
-  if (exercise.type === "hold") {
-    if (elapsed <= CONFIG.scoring.holdBufferSeconds) {
-      score += 50;
-    } else {
-      score -= (elapsed - CONFIG.scoring.holdBufferSeconds) * CONFIG.scoring.holdDecayRate;
-    }
-  }
-
-  // Distance = speed bonus
-  if (exercise.type === "distance") {
-    score += Math.max(0, 40 - elapsed);
-  }
-
-  return Math.max(10, Math.floor(score));
+  return Math.max(10, Math.floor(base));
 }
 
-/* ---------------- COMPLETE EXERCISE ---------------- */
+/* ---------------- COMPLETE ---------------- */
 
-function completeExercise(playerId) {
-  const player = AppState.players.find(p => p.id === playerId);
-  if (!player) return;
+function completeExercise(id, e) {
+  if (AppState.cooldown[id]) return;
 
-  const exercise = player.exercises[player.currentExercise];
-  if (!exercise) return;
+  AppState.cooldown[id] = true;
+  setTimeout(() => AppState.cooldown[id] = false, 600);
 
-  const gained = calculateScore(player, exercise);
+  const p = AppState.players.find(x => x.id === id);
+  const ex = p.exercises[p.currentExercise];
 
-  player.score += gained;
+  const time = Math.random() * 20;
 
-  // reset timer
-  AppState.exerciseStartTime[player.id] = Date.now();
+  const gained = score(ex, time);
 
-  player.currentExercise++;
+  p.score += gained;
+  p.currentExercise++;
+
+  showPopup(e, "+" + gained);
 
   renderGame();
   renderLeaderboard();
+  checkEnd();
+}
 
-  checkEndGame();
+/* ---------------- POPUP ---------------- */
+
+function showPopup(e, text) {
+  const d = document.createElement("div");
+  d.className = "scorePopup";
+  d.innerText = text;
+  d.style.left = e.pageX + "px";
+  d.style.top = e.pageY + "px";
+
+  document.body.appendChild(d);
+
+  setTimeout(() => d.remove(), 800);
 }
 
 /* ---------------- LEADERBOARD ---------------- */
@@ -198,61 +221,42 @@ function completeExercise(playerId) {
 function renderLeaderboard() {
   const board = document.getElementById("leaderboard");
 
-  const sorted = [...AppState.players].sort((a,b) => b.score - a.score);
-
-  board.innerHTML = sorted.map((p, index) => {
-    const progress = (p.currentExercise / CONFIG.exercisesPerPlayer) * 100;
-
-    return `
-      <div style="
-        margin:6px;
-        padding:6px;
-        border-left:8px solid ${p.color};
-      ">
-        <div style="display:flex;justify-content:space-between;">
-          <strong>${p.name}</strong>
-          <span>${p.score}</span>
-        </div>
-
-        <div style="height:8px;background:#333;">
-          <div style="
-            width:${progress}%;
-            height:8px;
-            background:${p.color};
-          "></div>
-        </div>
+  board.innerHTML = [...AppState.players]
+    .sort((a,b) => b.score - a.score)
+    .map(p => `
+      <div class="playerBar" style="border-color:#0E78FF">
+        ${p.avatar} ${p.name} — ${p.score}
       </div>
-    `;
-  }).join("");
+    `).join("");
 }
 
-/* ---------------- END GAME ---------------- */
+/* ---------------- END ---------------- */
 
-function checkEndGame() {
-  const done = AppState.players.every(
-    p => p.currentExercise >= CONFIG.exercisesPerPlayer
-  );
+function checkEnd() {
+  if (AppState.players.every(p => p.currentExercise >= CONFIG.exercisesPerPlayer)) {
+    showScreen("results");
 
-  if (!done) return;
-
-  showScreen("results");
-
-  document.getElementById("results").innerHTML =
-    [...AppState.players]
-      .sort((a,b) => b.score - a.score)
-      .map((p,i) => `
-        <div style="font-size:24px;margin:10px;">
-          ${i === 0 ? "🏆" : "⭐"} ${p.name} — ${p.score}
-        </div>
-      `).join("");
+    document.getElementById("results").innerHTML =
+      [...AppState.players]
+        .sort((a,b) => b.score - a.score)
+        .map(p => `<div>🏆 ${p.avatar} ${p.name} — ${p.score}</div>`)
+        .join("");
+  }
 }
 
 /* ---------------- EVENTS ---------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  document.getElementById("startGameBtn").onclick = () => showScreen("playerSetup");
+  document.getElementById("startGameBtn").onclick = () => {
+    renderAvatars();
+    showScreen("playerSetup");
+  };
+
   document.getElementById("addPlayerBtn").onclick = addPlayer;
-  document.getElementById("startCampBtn").onclick = startGameFlow;
+
+  document.getElementById("goRosterBtn").onclick = () => showScreen("rosterReview");
+
+  document.getElementById("startCampBtn").onclick = startMission;
 
 });
