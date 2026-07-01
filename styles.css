@@ -1,183 +1,79 @@
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-html,
-body{
-
-width:100%;
-height:100%;
-
-overflow:hidden;
-
-font-family:Arial, Helvetica, sans-serif;
-
-background:#081224;
-
-color:white;
-
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: #081224;
+  color: white;
 }
 
-#app{
-
-width:100vw;
-height:100vh;
-
-position:relative;
-
+#app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
 }
 
-/* ---------- Screens ---------- */
-
-.screen{
-
-position:absolute;
-
-top:0;
-left:0;
-
-width:100%;
-height:100%;
-
-display:none;
-
-justify-content:center;
-align-items:center;
-
-flex-direction:column;
-
-padding:40px;
-
+.screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
 }
 
-.screen.active{
-
-display:flex;
-
+.screen.active {
+  display: flex;
 }
 
-/* ---------- Home ---------- */
-
-.home-content{
-
-display:flex;
-
-flex-direction:column;
-
-align-items:center;
-
-justify-content:center;
-
-gap:30px;
-
-height:100%;
-
+.title {
+  font-size: 64px;
+  text-align: center;
 }
 
-.title{
-
-text-align:center;
-
-font-size:64px;
-
-line-height:1;
-
-font-weight:bold;
-
-letter-spacing:4px;
-
+.menu button,
+button {
+  width: 320px;
+  height: 70px;
+  font-size: 24px;
+  margin: 10px;
+  border: none;
+  border-radius: 16px;
+  background: #0E78FF;
+  color: white;
 }
 
-.hero-logo{
-
-font-size:140px;
-
+#leaderboard {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 25%;
 }
 
-.menu{
-
-display:flex;
-
-flex-direction:column;
-
-gap:20px;
-
-width:420px;
-
+#gameArea {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 75%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
-.menu button{
-
-height:72px;
-
-font-size:28px;
-
-border:none;
-
-border-radius:18px;
-
-background:#0E78FF;
-
-color:white;
-
-cursor:pointer;
-
-transition:.2s;
-
-}
-
-.menu button:hover{
-
-transform:scale(1.03);
-
-}
-
-.version{
-
-margin-top:20px;
-
-opacity:.6;
-
-font-size:18px;
-
-}
-
-/* ---------- Placeholder Screens ---------- */
-
-.screen h2{
-
-font-size:54px;
-
-margin-bottom:30px;
-
-}
-
-.screen p{
-
-font-size:24px;
-
-margin-bottom:30px;
-
-}
-
-.backButton{
-
-width:260px;
-
-height:70px;
-
-font-size:28px;
-
-border:none;
-
-border-radius:18px;
-
-background:#0E78FF;
-
-color:white;
-
-cursor:pointer;
-
+.playerCard {
+  width: 45%;
+  height: 45%;
+  background: rgba(255,255,255,0.08);
+  margin: 10px;
+  padding: 15px;
+  border-radius: 20px;
 }
