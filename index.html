@@ -14,13 +14,7 @@
 <!-- HOME -->
 <section id="screen-home" class="screen active">
   <div class="home-content">
-
-    <h1 class="title">
-      SUPERHERO<br>
-      ACADEMY<br>
-      CHALLENGE
-    </h1>
-
+    <h1 class="title">SUPERHERO<br>ACADEMY<br>CHALLENGE</h1>
     <div class="hero-logo">🦸</div>
 
     <div class="menu">
@@ -29,25 +23,33 @@
       <button id="settingsBtn">Settings</button>
     </div>
 
-    <div class="version">
-      Version 1.0.0-alpha.3
-    </div>
-
+    <div class="version">Version 1.0.0-alpha.5</div>
   </div>
 </section>
 
 <!-- PLAYER SETUP -->
 <section id="screen-playerSetup" class="screen">
 
-  <h2>Player Setup</h2>
+  <h2>Assemble Your Heroes</h2>
+
+  <div id="avatarGrid"></div>
 
   <div id="playerList"></div>
 
-  <div class="menu">
-    <button id="addPlayerBtn">+ Add Hero</button>
-    <button id="startCampBtn">Start Camp</button>
-    <button class="backButton">Back</button>
-  </div>
+  <button id="addPlayerBtn">+ Add Hero</button>
+  <button id="goRosterBtn">Review Roster</button>
+  <button class="backButton">Back</button>
+</section>
+
+<!-- ROSTER REVIEW -->
+<section id="screen-rosterReview" class="screen">
+
+  <h2>Roster Review</h2>
+
+  <div id="rosterList"></div>
+
+  <button id="startCampBtn">Start Mission</button>
+  <button class="backButton">Back</button>
 
 </section>
 
@@ -71,7 +73,7 @@
   <button class="backButton">Home</button>
 </section>
 
-<!-- OTHER SCREENS -->
+<!-- OTHER -->
 <section id="screen-hall" class="screen">
   <h2>Hall of Heroes</h2>
   <button class="backButton">Back</button>
