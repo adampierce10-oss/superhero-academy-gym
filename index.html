@@ -1,18 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Superhero Academy Challenge</title>
-
-<link rel="stylesheet" href="styles.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superhero Academy Challenge</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -20,175 +12,91 @@ content="width=device-width, initial-scale=1.0">
 <div id="app">
 
 <!-- HOME -->
+<section id="screen-home" class="screen active">
+  <div class="home-content">
 
-<section
-id="screen-home"
-class="screen active">
+    <h1 class="title">
+      SUPERHERO<br>
+      ACADEMY<br>
+      CHALLENGE
+    </h1>
 
-<div class="home-content">
+    <div class="hero-logo">🦸</div>
 
-<h1 class="title">
-SUPERHERO<br>
-ACADEMY<br>
-CHALLENGE
-</h1>
+    <div class="menu">
+      <button id="startGameBtn">Start New Game</button>
+      <button id="hallBtn">Hall of Heroes</button>
+      <button id="settingsBtn">Settings</button>
+    </div>
 
-<div class="hero-logo">
+    <div class="version">
+      Version 1.0.0-alpha.2
+    </div>
 
-🦸
-
-</div>
-
-<div class="menu">
-
-<button id="startGameBtn">
-Start New Game
-</button>
-
-<button id="hallBtn">
-Hall of Heroes
-</button>
-
-<button id="settingsBtn">
-Settings
-</button>
-
-</div>
-
-<div class="version">
-
-Version 1.0.0-alpha.1
-
-</div>
-
-</div>
-
+  </div>
 </section>
 
 <!-- PLAYER SETUP -->
+<section id="screen-playerSetup" class="screen">
+  <h2>Player Setup</h2>
 
-<section
-id="screen-playerSetup"
-class="screen">
+  <div id="playerList"></div>
 
-<h2>Player Setup</h2>
+  <button id="addPlayerBtn">+ Add Hero</button>
 
-<p>
+  <button id="startCampBtn">Start Camp</button>
 
-This screen will be built in Version alpha.2.
-
-</p>
-
-<button
-class="backButton">
-
-Back
-
-</button>
-
+  <button class="backButton">Back</button>
 </section>
 
 <!-- ROSTER REVIEW -->
+<section id="screen-rosterReview" class="screen">
+  <h2>Roster Review</h2>
 
-<section
-id="screen-rosterReview"
-class="screen">
+  <div id="rosterList"></div>
 
-<h2>Roster Review</h2>
-
-<p>
-
-Coming Soon
-
-</p>
-
-<button
-class="backButton">
-
-Back
-
-</button>
-
+  <button id="confirmRosterBtn">Start Mission</button>
+  <button class="backButton">Back</button>
 </section>
 
 <!-- COUNTDOWN -->
-
-<section
-id="screen-countdown"
-class="screen">
-
-<h2>Countdown</h2>
-
+<section id="screen-countdown" class="screen">
+  <h1 id="countdownText">3</h1>
 </section>
 
-<!-- GAME -->
+<!-- GAMEPLAY -->
+<section id="screen-gameplay" class="screen">
 
-<section
-id="screen-gameplay"
-class="screen">
+  <div id="leaderboard"></div>
 
-<h2>Gameplay</h2>
+  <div id="gameArea"></div>
 
 </section>
 
 <!-- RESULTS -->
-
-<section
-id="screen-results"
-class="screen">
-
-<h2>Results</h2>
-
+<section id="screen-results" class="screen">
+  <h2>Mission Complete</h2>
+  <div id="results"></div>
+  <button class="backButton">Home</button>
 </section>
 
 <!-- HALL OF HEROES -->
-
-<section
-id="screen-hall">
-
-<h2>
-
-Hall of Heroes
-
-</h2>
-
-<button
-class="backButton">
-
-Back
-
-</button>
-
+<section id="screen-hall" class="screen">
+  <h2>Hall of Heroes</h2>
+  <button class="backButton">Back</button>
 </section>
 
 <!-- SETTINGS -->
-
-<section
-id="screen-settings"
-class="screen">
-
-<h2>
-
-Settings
-
-</h2>
-
-<button
-class="backButton">
-
-Back
-
-</button>
-
+<section id="screen-settings" class="screen">
+  <h2>Settings</h2>
+  <button class="backButton">Back</button>
 </section>
 
 </div>
 
 <script src="config.js"></script>
-<script src="gameData.js"></script>
-<script src="exercises.js"></script>
+<script src="data.js"></script>
 <script src="app.js"></script>
 
 </body>
-
 </html>
